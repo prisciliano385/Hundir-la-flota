@@ -22,7 +22,10 @@ vidas_enemigo = 5
 # Crear los barcos y las flotas de ambos jugadores
 for eslora in eslora_flotas:
     barco = {"eslora": eslora}
-    utils.crear_barco(barco, flota_jugador, tablero_jugador)
+    # utils.crear_barco(barco, flota_jugador, tablero_jugador)
+    utils.crear_barco_random(barco, flota_jugador, tablero_jugador)
+    print("#"*10 + "\n")
+    print(tablero_jugador)
     # Los barcos son diccionarios, solo haremos append con sus posiciones
     flota_jugador.append(barco["posiciones"])
 
@@ -40,13 +43,20 @@ posiciones_jugador = {tuple(par) for barco in flota_jugador for par in barco}
 # Si es True, será el turno del jugador y viceversa.
 turno = random.choice([True, False])
 
+print("TXULETA: flota enemiga\n")
+print(tablero_enemigo)
+print(flota_enemigo)
+
 while vidas_jugador > 0 and vidas_enemigo > 0:
     
     # Turno jugador
     while turno:
-        print("Tu turno:\t")
-        
+        print("Tu turno:\n")
+        print("Tablero rival:")
+        print(tablero_visible_jugador)
         # Solicitar el input para las coordenadas del disparo.
+        
+        print(f"Vidas: {vidas_jugador}")
         iv = int(input("Introduce la coordenada vertical del disparo:\t"))
         ih = int(input("\nIntroduce la coordenada horizontal del disparo:\t"))
         casilla = [iv, ih]
@@ -67,6 +77,9 @@ while vidas_jugador > 0 and vidas_enemigo > 0:
     if len(posiciones_enemigas) == 0:
         victoria = True # True si gana el jugador
         break # ... salir del bucle while
+    if vidas_jugador < 1:
+        victoria = False
+        break
     
     # Turno enemigo
     while not turno:
@@ -74,7 +87,9 @@ while vidas_jugador > 0 and vidas_enemigo > 0:
         iv = random.randrange(utils.n)
         ih = random.randrange(utils.n)
         casilla = [iv, ih]
-        acierto = utils.disparar(casilla, tablero_jugador)
+        # acierto = utils.disparar(casilla, tablero_jugador)
+        acierto = utils.disparar(casilla, tablero_jugador, tablero_visible_enemigo)
+        print(f"Disparo enemigo: {casilla}")
         if acierto:
             posiciones_jugador.remove(tuple(casilla))
             if len(posiciones_jugador) == 0:
@@ -83,8 +98,12 @@ while vidas_jugador > 0 and vidas_enemigo > 0:
         if not acierto:
             vidas_enemigo -= 1
             turno = True
+        print(f"Vidas enemigo: {vidas_jugador}")
     if len(posiciones_jugador) == 0:
         victoria = False
+        break
+    if vidas_enemigo < 1:
+        victoria = True
         break
 
 # Resultado del juego

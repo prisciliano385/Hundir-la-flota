@@ -144,7 +144,7 @@ def crear_barco(barco: dict, flota: list, board):
     
     # Añadir barco al tablero e imprimirlo
     colocar_barco(barco["posiciones"], board)
-    print(board)
+    # print(board)
 
 
 # =============================================================================
@@ -195,7 +195,7 @@ def crear_barco_random(barco: dict, flota: list, board):
         barco["heading"] = heading
         _posiciones_barco(barco, popa)
     colocar_barco(barco["posiciones"], board)
-    print(board)
+    # print(board)
 
 # =============================================================================
 # 
