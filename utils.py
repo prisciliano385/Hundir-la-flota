@@ -1,66 +1,18 @@
 import numpy as np
-
+import random
 n = 10
-
-barco1 = {
-        "tipo": "Acorazado",
-        "clase": "Yamato",
-        "eslora": 4,
-        "heading": None,
-        "posiciones": None,
-        }
-
-barco2 = {
-        "tipo": "Crucero",
-        "clase": "Mogami",
-        "eslora": 3,
-        "heading": None,
-        "posiciones": None,
-        }
-
-barco3 = {
-        "tipo": "Acorazado",
-        "clase": "Nagato",
-        "eslora": 4,
-        "heading": None,
-        "posiciones": None,
-        }
-
-# flota1 = [barco1]
-flota2 = [barco1, barco2, barco3]
+ontzi = {"eslora": 3}
 
 def crear_tablero(n=10):
     """Función para crear tablero. Argumentos:
         - n(=10): lado del cuadrado"""
     return np.full((n,n), '_')
-
-def colocar_barco(tablero, barco: list):
-    """Función para colocar un barco en el tablero. Argumentos:
-        - tablero: tablero de juego
-        - barco (lista): lista de [i, j] que contienen los índices
-        de cada componente del barco
-        
-        OJO: el tablero introducido en el argumento se ve afectado"""
-    for elem in barco:
-        i, j = elem
-        tablero[i, j] = 'O' # Si hiciésemos tablero[i,j] = ... afectaría a tablero fuera de la función
-
-def disparar(casilla: list, tablero):
-    assert len(casilla) == 2, f"{len(casilla)=} es distinta de 2"
-    i, j = casilla
-    if tablero[i, j] == 'O':
-        print("¡Barco enemigo alcanzado!")
-        tablero[i, j] = 'X'
-    elif tablero[i, j] == '_':
-        print("Disparo fallido.")
-        tablero[i, j] = 'A'
-    return tablero
 # =============================================================================
-# 
+# Crear flota JUGADOR
 # =============================================================================
 def _fijar_barco(barco: dict):
     print("\n")
-    print(f"Barco: {barco['tipo']} {barco['clase']}. Eslora: {barco['eslora']}")
+    print(f"Fija la posición del siguiente barco. Eslora: {barco['eslora']}")
 
     heading = ''
     while not(heading in {'H', 'V'}):
@@ -88,14 +40,9 @@ def _posiciones_barco(barco: dict, popa: list):
         for i in range(1, longitud):
             barco["posiciones"].append([popa[0] + i, popa[1]])
     
-    assert len(barco["posiciones"]) == longitud, f"{longitud=} != longitud barco"
-    f"{len(barco['posiciones'])=}"
 
 def _check_barco(barco: dict):
-    """Comprobar que las posiciones de un barco están dentro del tablero"""
-    
-    assert not barco["posiciones"] is None, f"{barco['posiciones']=}: no se ha definido la lista de posiciones del barco."
-    assert barco["eslora"] == len(barco["posiciones"]), f"{barco['eslora']=} != longitud del barco"
+    """Comprobar que las posiciones de un barco están dentro del tablero"""    
     
     booleano = True
     
@@ -110,37 +57,91 @@ def _check_barco(barco: dict):
     return booleano
     
     
-def _coincidir_barco(flota: list):
-    posiciones = set()
-    booleano = True
-    for barco in flota:
-        if not(barco["posiciones"] is None):
-            new_list = [tuple(elem) for elem in barco["posiciones"]]
-            new_set = set(new_list)
-            if posiciones.isdisjoint(new_set):
-                posiciones.update(new_set)
-            else:
-                booleano = False
-        else:
-            continue
+def _check_flota(barco:dict, flota: list):
+
+    posiciones_flota = {tuple(pair) for ship in flota for pair in ship}
+    posiciones_barco = {tuple(elem) for elem in barco["posiciones"]}
+    if posiciones_flota.isdisjoint(posiciones_barco): booleano = True
+    else: booleano = False
     return booleano
 
+def colocar_barco(barco: list, tablero):
+    """Función para colocar un barco en el tablero. Argumentos:
+        - tablero: tablero de juego
+        - barco (lista): lista de [i, j] que contienen los índices
+        de cada componente del barco
+        
+        OJO: el tablero introducido en el argumento se ve afectado"""
+    for elem in barco:
+        i, j = elem
+        tablero[i, j] = 'O'
+
+def crear_barco(barco: dict, flota: list, board):
+    heading, popa = _fijar_barco(barco)
+    barco["heading"] = heading
+    _posiciones_barco(barco, popa)
+    while not(_check_barco(barco) and _check_flota(barco, flota)):
+        heading, popa = _fijar_barco(barco)
+        barco["heading"] = heading
+        _posiciones_barco(barco, popa)
+    colocar_barco(barco["posiciones"], board)
+    print(board)
+# =============================================================================
+# Crear flota de barcos ordenador
+# =============================================================================
+def _fijar_barco_random(barco: dict):
+    
+    heading = random.choice(['H','V'])
+    
+    iv = random.randrange(n)
+    ih = random.randrange(n)
+    if heading == 'H':
+        while iv >= n - barco["eslora"]:
+            iv = random.randrange(n)
+    else:
+        while ih >= n - barco["eslora"]:
+            ih = random.randrange(n)
+    popa = [iv, ih]
+    
+    return heading, popa
+
+def crear_barco_random(barco, flota, board): # Esta función es casi igual
+# que la otra
+    heading, popa = _fijar_barco_random(barco)
+    barco["heading"] = heading
+    _posiciones_barco(barco, popa)
+    while not(_check_barco(barco) and _check_flota(barco, flota)):
+        heading, popa = _fijar_barco_random(barco)
+        barco["heading"] = heading
+        _posiciones_barco(barco, popa)
+    colocar_barco(barco["posiciones"], board)
+    print(board)
 # =============================================================================
 # 
 # =============================================================================
 
-def _crear_flota(flota: list):
-    board = crear_tablero()
-    for barco in flota:
-        heading, popa = _fijar_barco(barco)
-        barco["heading"] = heading
-        _posiciones_barco(barco, popa)
-        print(f"{_check_barco(barco)=}")
-        print(f"{_coincidir_barco(flota)=}")
-        while not(_check_barco(barco) and _coincidir_barco(flota)):
-            heading, popa = _fijar_barco(barco)
-            barco["heading"] = heading
-            _posiciones_barco(barco, popa)
-        colocar_barco(board, barco["posiciones"])
-        print(board)
-
+def disparar(casilla: list, tablero_enemigo, tablero_visible=None):
+    """Funciona! Tanto con tablero_visible (turno jugador) como
+    sin él (turno enemigo)"""
+    i, j = casilla
+        
+    if not (tablero_visible is None):
+        if tablero_visible[i, j] not in {'A', 'X'}:
+            if tablero_enemigo[i, j] == 'O':
+                print("¡Barco enemigo alcanzado!")
+                tablero_visible[i, j] = 'X'
+                return True
+            elif tablero_enemigo[i, j] == '_':
+                print("Disparo fallido.")
+                tablero_visible[i, j] = 'A'
+                return False
+        else:
+            print("Has disparado a una casilla a la que ya has disparado, ¡CAZURRO!\n")
+            return False
+    else:
+        if tablero_enemigo[i, j] == 'O':
+            print("¡Barco enemigo alcanzado!")
+            return True
+        elif tablero_enemigo[i, j] == '_':
+            print("Disparo fallido.")
+            return False
