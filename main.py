@@ -22,8 +22,8 @@ vidas_enemigo = 5
 # Crear los barcos y las flotas de ambos jugadores
 for eslora in eslora_flotas:
     barco = {"eslora": eslora}
-    # utils.crear_barco(barco, flota_jugador, tablero_jugador)
-    utils.crear_barco_random(barco, flota_jugador, tablero_jugador)
+    utils.crear_barco(barco, flota_jugador, tablero_jugador)
+    # utils.crear_barco_random(barco, flota_jugador, tablero_jugador)
     print("#"*10 + "\n")
     print(tablero_jugador)
     # Los barcos son diccionarios, solo haremos append con sus posiciones
@@ -43,10 +43,6 @@ posiciones_jugador = {tuple(par) for barco in flota_jugador for par in barco}
 # Si es True, será el turno del jugador y viceversa.
 turno = random.choice([True, False])
 
-print("TXULETA: flota enemiga\n")
-print(tablero_enemigo)
-print(flota_enemigo)
-
 while vidas_jugador > 0 and vidas_enemigo > 0:
     
     # Turno jugador
@@ -54,9 +50,9 @@ while vidas_jugador > 0 and vidas_enemigo > 0:
         print("Tu turno:\n")
         print("Tablero rival:")
         print(tablero_visible_jugador)
-        # Solicitar el input para las coordenadas del disparo.
-        
         print(f"Vidas: {vidas_jugador}")
+        
+        # Solicitar el input para las coordenadas del disparo.
         iv = int(input("Introduce la coordenada vertical del disparo:\t"))
         ih = int(input("\nIntroduce la coordenada horizontal del disparo:\t"))
         casilla = [iv, ih]
